@@ -1,0 +1,27 @@
+# One-command demo: mock backend + k6 run + HTML report.
+#
+#   docker compose up --build
+#
+# k6 waits for the mock to be healthy, runs the scenario against it, and writes
+# report.html + summary.json to ./results/ on the host.
+services:
+  mock:
+    build: ./mock
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/api/catalog')"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  k6:
+    image: grafana/k6:latest
+    depends_on:
+      mock:
+        condition: service_healthy
+    environment:
+      - BASE_URL=http://mock:8080
+    working_dir: /results
+    volumes:
+      - ./k6:/scripts:ro
+      - ./results:/results
+    command: ["run", "/scripts/script.js"]

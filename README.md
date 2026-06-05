@@ -1,0 +1,47 @@
+# ShopLite Load Tests — Grafana k6
+
+Performance test for the **ShopLite** e-commerce API, implemented with **Grafana k6**.
+It mirrors the same user journey as the [JMeter version](https://github.com/scherednychenko/ShopLite-load-tests):
+**Browse catalog → Add to cart (N items) → Checkout**, against placeholder endpoints
+served by a tiny local mock backend.
+
+This repo is part of a small series implementing the *same* scenario in different tools
+(JMeter, k6, Locust, Gatling) so they can be compared directly.
+
+## Contents
+- `k6/script.js` — the test: 3 transactions (groups), parameterized via env vars, SLOs as thresholds
+- `mock/` — dependency-free mock backend for the 3 placeholder endpoints
+- `docker-compose.yml` — one-command demo (mock → k6 → HTML report)
+- `docs/Proposed_Test_Approach.md` — performance testing strategy (SLIs/SLOs, cadence, Agile fit)
+- `docs/Project_Brief.md` — anonymized project brief / context
+
+## Run everything in Docker (one command)
+```bash
+docker compose up --build
+```
+k6 waits for the mock to be healthy, runs the scenario, and writes `report.html`
++ `summary.json` to `results/`. Open `results/report.html` when it finishes.
+
+## The test
+Three transactions, grouped for per-step metrics:
+- **Browse Catalog** — `GET /api/catalog`
+- **Add To Cart** — `POST /api/cart/items` ×`CART_SIZE`, correlates `cartId`
+- **Checkout** — `POST /api/orders` with unique guest data, correlates `orderId`
+
+### SLOs (k6 thresholds — the run fails if breached)
+| Threshold | Budget |
+|---|---|
+| `http_req_failed` | error rate < 1% |
+| `http_req_duration` | p95 < 500 ms |
+| `checks` | assertion pass rate > 99% |
+
+### Tunable via env vars
+`BASE_URL`, `VUS` (virtual users), `DURATION`, `CART_SIZE`. Example (without Docker, needs a local k6):
+```bash
+k6 run -e BASE_URL=http://localhost:8080 -e VUS=20 -e DURATION=2m -e CART_SIZE=50 k6/script.js
+```
+
+## Notes
+- Endpoints are placeholders; the mock returns the minimal contract (`cartId`/`orderId`) so the journey runs green.
+- The mock's latencies are illustrative only — this demonstrates the tooling and reporting, not real system performance.
+- The HTML report is generated via [k6-reporter](https://github.com/benc-uk/k6-reporter) in `handleSummary`.
