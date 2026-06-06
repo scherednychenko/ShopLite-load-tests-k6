@@ -41,6 +41,12 @@ Three transactions, grouped for per-step metrics:
 k6 run -e BASE_URL=http://localhost:8080 -e VUS=20 -e DURATION=2m -e CART_SIZE=50 k6/script.js
 ```
 
+## Sample report
+
+A run against the local mock backend (all green):
+
+![k6 HTML report — 792 requests, 0 failed, 0 breached thresholds](docs/img/sample_report.png)
+
 ## Notes
 - Endpoints are placeholders; the mock returns the minimal contract (`cartId`/`orderId`) so the journey runs green.
 - The mock's latencies are illustrative only — this demonstrates the tooling and reporting, not real system performance.
