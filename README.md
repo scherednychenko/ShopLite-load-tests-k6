@@ -8,6 +8,8 @@ served by a tiny local mock backend.
 This repo is part of a small series implementing the *same* scenario in different tools
 (JMeter, k6, Locust, Gatling) so they can be compared directly.
 
+> 💡 **The script is the easy part.** The real value is knowing *what* to test, shaping the load model, reading the results, and turning them into a go/no-go call — judgment a demo can't capture.
+
 ## Contents
 - `k6/script.js` — the test: 3 transactions (groups), parameterized via env vars, SLOs as thresholds
 - `mock/` — dependency-free mock backend for the 3 placeholder endpoints
