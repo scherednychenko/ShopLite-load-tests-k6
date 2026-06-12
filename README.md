@@ -10,6 +10,9 @@ This repo is part of a small series implementing the *same* scenario in differen
 
 > 💡 **The script is the easy part.** The real value is knowing *what* to test, shaping the load model, reading the results, and turning them into a go/no-go call — judgment a demo can't capture.
 
+> **Note.** This is a personal portfolio project — a from-scratch reconstruction
+> built entirely on public, open-source tools against a fictional storefront. It is
+> not affiliated with, and contains no material from, any employer or client.
 ## Contents
 - `k6/script.js` — the test: 3 transactions (groups), parameterized via env vars, SLOs as thresholds
 - `mock/` — dependency-free mock backend for the 3 placeholder endpoints
