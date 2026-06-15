@@ -71,3 +71,5 @@ The same ShopLite journey (browse → add-to-cart → checkout) is implemented a
 | Gatling | Java DSL | Assertions | HTML charts | [ShopLite-load-tests-gatling-javaDSL](https://github.com/scherednychenko/ShopLite-load-tests-gatling-javaDSL) |
 | sitespeed.io | JavaScript | Budgets | HTML + Grafana | [ShopLite-ui-perf](https://github.com/scherednychenko/ShopLite-ui-perf) |
 | **Observability** | InfluxDB + Grafana | — | Live dashboards | [ShopLite-observability](https://github.com/scherednychenko/ShopLite-observability) |
+
+> **Sample failure report** — red dashboards + a short analysis of one deliberately broken run (errors, KO, slow Core Web Vitals): [ShopLite-observability/reports](https://github.com/scherednychenko/ShopLite-observability/tree/main/reports).
