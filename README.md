@@ -16,6 +16,8 @@ This repo is part of a small series implementing the *same* scenario in differen
 
 ## Contents
 - `k6/script.js` — the test: 3 transactions (groups), parameterized via env vars, SLOs as thresholds
+- `k6/browser-cwv.js` — browser/frontend companion: Core Web Vitals (LCP/INP/CLS/FCP/TTFB) via the
+  `k6/browser` module, scored at p75 against Google thresholds; runs locally and in k6 Cloud
 - `mock/` — dependency-free mock backend for the 3 placeholder endpoints
 - `docker-compose.yml` — one-command demo (mock → k6 → HTML report)
 - `docs/Proposed_Test_Approach.md` — performance testing strategy (SLIs/SLOs, cadence, Agile fit)
@@ -46,6 +48,25 @@ Three transactions, grouped for per-step metrics:
 ```bash
 k6 run -e BASE_URL=http://localhost:8080 -e VUS=20 -e DURATION=2m -e CART_SIZE=50 k6/script.js
 ```
+
+## Browser test — Core Web Vitals (lab + k6 Cloud)
+`k6/browser-cwv.js` is the frontend companion to the protocol test above: it drives a real
+Chromium via the [`k6/browser`](https://grafana.com/docs/k6/latest/using-k6-browser/) module and
+gates **Core Web Vitals** (LCP/INP/CLS/FCP/TTFB) at the 75th percentile against Google's "good"
+thresholds — the same SLOs-as-code idea, applied to the rendered frontend. Point `BASE_URL` at any
+public site (a demo, your app, a client's staging URL).
+
+```bash
+# local (needs a recent k6 — the browser module is stable since v0.52):
+k6 run -e BASE_URL=https://quickpizza.grafana.com/ k6/browser-cwv.js
+
+# Grafana Cloud k6 — same script, Web Vitals shown in the cloud results UI:
+k6 cloud run -e BASE_URL=https://quickpizza.grafana.com/ k6/browser-cwv.js
+```
+
+- The cloud runs on Grafana's load zones, so `BASE_URL` must be **publicly reachable** (not localhost).
+- A run can legitimately **fail** a threshold (that's the point) — e.g. a site whose p75 FCP > 1.8s.
+- **INP** needs real interactions; it populates on real sites/RUM far better than on synthetic mocks.
 
 ## Sample report
 
