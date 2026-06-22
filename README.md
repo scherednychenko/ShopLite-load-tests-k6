@@ -68,6 +68,19 @@ k6 cloud run -e BASE_URL=https://quickpizza.grafana.com/ k6/browser-cwv.js
 - A run can legitimately **fail** a threshold (that's the point) — e.g. a site whose p75 FCP > 1.8s.
 - **INP** needs real interactions; it populates on real sites/RUM far better than on synthetic mocks.
 
+A real k6 Cloud run of this script (Columbus load zone, 1 VU) — all six Web Vitals scored **Good**
+at p75, the **5/5 thresholds passed**, and k6's Cloud Insights rated it **92 / 100 / 100**:
+
+![k6 Cloud — Performance Overview: the six Web Vitals at p75, all Good](docs/img/k6_cloud_browser_cwv.png)
+
+*Browser timeline* — the scripted steps (`page.goto` → `locator.click` → `page.close`) with each navigation's vitals:
+
+![k6 Cloud — browser timeline of the run](docs/img/k6_cloud_browser_timeline.png)
+
+*Browser metrics* — per-request timings and Web Vitals for every resource the page loaded:
+
+![k6 Cloud — per-resource browser metrics](docs/img/k6_cloud_browser_metrics.png)
+
 ## Sample report
 
 A run against the local mock backend (all green):
