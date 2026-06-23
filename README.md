@@ -18,6 +18,8 @@ This repo is part of a small series implementing the *same* scenario in differen
 - `k6/script.js` — the test: 3 transactions (groups), parameterized via env vars, SLOs as thresholds
 - `k6/browser-cwv.js` — browser/frontend companion: Core Web Vitals (LCP/INP/CLS/FCP/TTFB) via the
   `k6/browser` module, scored at p75 against Google thresholds; runs locally and in k6 Cloud
+- `k6/business-ops.js` — **business-operation timing**: times named user operations (Login,
+  Account Search) with custom `Trend` metrics + `check()`s + SLO thresholds — what stakeholders track
 - `mock/` — dependency-free mock backend for the 3 placeholder endpoints
 - `docker-compose.yml` — one-command demo (mock → k6 → HTML report)
 - `docs/Proposed_Test_Approach.md` — performance testing strategy (SLIs/SLOs, cadence, Agile fit)
@@ -80,6 +82,34 @@ at p75, the **5/5 thresholds passed**, and k6's Cloud Insights rated it **92 / 1
 *Browser metrics* — per-request timings and Web Vitals for every resource the page loaded:
 
 ![k6 Cloud — per-resource browser metrics](docs/img/k6_cloud_browser_metrics.png)
+
+## Business-operation timing — Checks & custom metrics
+Stakeholders don't track LCP — they track *"how long did it take a user to **log in** / **search for
+an account**?"*. `k6/business-ops.js` measures exactly that, the way a real team wires it up:
+
+- a custom **`Trend`** metric per operation (`op_login_ms`, `op_account_search_ms`) — the **timing**
+  the business dashboard shows (e.g. login p95);
+- a **`check()`** per operation (did it succeed / open?) — pass/fail that surfaces in the
+  k6 / Grafana Cloud **Checks** view, right next to Thresholds;
+- **`thresholds`** on those metrics + on `checks` — the **SLO gate** that fails CI on a regression.
+
+```js
+const loginMs = new Trend("op_login_ms", true);
+// ...time from submitting credentials to the app being stable...
+loginMs.add(Date.now() - t0);
+check(welcome, { "Login: app stable (welcome shown)": (t) => t.includes("Welcome") });
+// options.thresholds: { op_login_ms: ["p(95)<3000"], checks: ["rate>0.99"] }
+```
+
+```bash
+k6 run k6/business-ops.js          # local
+k6 cloud run k6/business-ops.js    # cloud — Checks show up beside Thresholds
+```
+
+The two operations run against public demo sites as **stand-ins** (test.k6.io login, a quickpizza
+query→result) — swap the URLs/selectors for the real app, keep the shape. Web Vitals
+(`browser-cwv.js`) stay underneath as **diagnostics**: when an operation's p95 creeps up, you drill
+into LCP/INP/network to find out *why*.
 
 ## Sample report
 
