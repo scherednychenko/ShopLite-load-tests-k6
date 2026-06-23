@@ -111,6 +111,20 @@ query→result) — swap the URLs/selectors for the real app, keep the shape. We
 (`browser-cwv.js`) stay underneath as **diagnostics**: when an operation's p95 creeps up, you drill
 into LCP/INP/network to find out *why*.
 
+A real k6 Cloud run of `business-ops.js` — the operation checks land in the **Checks** view, right
+next to **Thresholds**, exactly how a stakeholder reads it:
+
+![k6 Cloud — Checks: Login and Account Search, 100% success](docs/img/k6_cloud_business_ops_checks.png)
+
+The matching **Thresholds** — the SLO gate on each operation's p95 plus the overall check rate:
+
+![k6 Cloud — Thresholds: op_login_ms / op_account_search_ms p95 < 3s, checks rate > 0.99](docs/img/k6_cloud_business_ops_thresholds.png)
+
+The **browser timeline** shows the scripted steps each operation is timed across (`locator.type` →
+`locator.click` → `waitForNavigation`, etc.):
+
+![k6 Cloud — browser timeline of the business-operations run](docs/img/k6_cloud_business_ops_timeline.png)
+
 ## Sample report
 
 A run against the local mock backend (all green):
